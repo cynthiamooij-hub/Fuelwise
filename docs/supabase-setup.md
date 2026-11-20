@@ -89,7 +89,7 @@ Verified session 1: anon select is denied; an authenticated user updating seed r
 - Session 1 auth log showed `422 Signups not allowed for otp` for an uninvited address — i.e. public signup is already refused for OTP.
 - **Manual dashboard steps (the MCP cannot change Auth settings):**
   - [ ] Authentication → Sign In / Providers → turn off "Allow new users to sign up"
-  - [ ] Authentication → URL Configuration → Site URL = the Netlify URL; add `http://localhost:5173` to Redirect URLs for local testing
+  - [ ] Authentication → URL Configuration → Site URL = https://fuelwise-all-day.netlify.app; Redirect URLs include https://fuelwise-all-day.netlify.app/**; add `http://localhost:5173` to Redirect URLs for local testing
 
 ## Migrations
 1. `initial_schema_and_rls` — tables, constraints, trigger, grants, RLS policies (session 1)
