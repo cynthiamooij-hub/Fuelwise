@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { CalendarClock, ChevronDown, Dumbbell, Lightbulb, RefreshCw } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { cycleState, dailyFuel, daysBetween, localISODate, type Phase } from '@/lib/nutrition'
-import { SLOT_LABEL, suggestPlate, type MealOption } from '@/lib/suggestions'
+import { SLOT_LABEL, suggestPlate, type PlateRow } from '@/lib/suggestions'
 import { APPROXIMATE_LINE, ESTIMATE_NOTE, GOAL_WHY, PHASE_WHY, TRAINING_WHY } from '@/lib/copy'
 import type { ContextTag, FoodItem, MotivationalMessage } from '@/lib/types'
 import { AppShell } from '@/components/AppShell'
@@ -32,24 +32,22 @@ function chooseMessage(messages: MotivationalMessage[], tags: ContextTag[], seed
   return null
 }
 
-function OptionRow({ option }: { option: MealOption }) {
+function Row({ row }: { row: PlateRow }) {
   return (
-    <li className="rounded-2xl bg-white/70 p-4">
-      <ul className="space-y-1.5">
-        {option.items.map((i) => (
-          <li key={i.id} className="flex items-start gap-3">
-            <span className="text-xl leading-6" aria-hidden>{i.emoji}</span>
-            <span className="text-deep">
-              <span className="font-medium">{i.name}</span>
-              <span className="text-muted"> · {i.portion_description}</span>
+    <div>
+      <p className="text-sm font-medium text-muted">{row.prompt}</p>
+      <ul className="mt-1.5 divide-y divide-line rounded-2xl bg-white/70">
+        {row.items.map((i) => (
+          <li key={i.id} className="flex items-start gap-3 px-4 py-2.5">
+            <span className="text-2xl leading-7" aria-hidden>{i.emoji}</span>
+            <span className="min-w-0">
+              <span className="block font-medium text-deep">{i.name}</span>
+              <span className="block text-sm text-muted">{i.portion_description}</span>
             </span>
           </li>
         ))}
       </ul>
-      <p className="num mt-2 text-sm text-muted">
-        about {Math.round(option.kcal)} kcal · {Math.round(option.protein_g)} g protein
-      </p>
-    </li>
+    </div>
   )
 }
 
@@ -164,17 +162,17 @@ export function Dashboard() {
             <RefreshCw aria-hidden /> New ideas
           </Button>
         </div>
-        <p className="mt-1 text-muted">A few options for each meal — pick whatever appeals.</p>
+        <p className="mt-1 text-muted">Ideas for each meal — choose whatever appeals today.</p>
 
         <div className="mt-4 space-y-6">
           {plate.map((s) => (
             <div key={s.slot}>
               <h3 className="text-lg">{SLOT_LABEL[s.slot]}</h3>
-              <ul className="mt-2 space-y-2">
-                {s.options.map((o) => (
-                  <OptionRow key={o.items.map((i) => i.id).join('-')} option={o} />
+              <div className="mt-2 space-y-3">
+                {s.rows.map((row) => (
+                  <Row key={row.prompt} row={row} />
                 ))}
-              </ul>
+              </div>
               {s.approximate && <p className="mt-2 text-sm text-muted">{APPROXIMATE_LINE}</p>}
             </div>
           ))}
@@ -198,7 +196,7 @@ export function Dashboard() {
             <p>{GOAL_WHY[profile.goal]}</p>
             {phase && <p>{PHASE_WHY[phase]}</p>}
             {training && <p>{TRAINING_WHY}</p>}
-            <p>Each meal is a mix of food groups so you get protein, energy and fibre together. Tap “New ideas” any time for a different mix.</p>
+            <p>Lunch and dinner are built from a protein, a carb and some veg, so you get staying power, energy and fibre together. Tap “New ideas” any time for different choices.</p>
           </div>
         )}
       </section>

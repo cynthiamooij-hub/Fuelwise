@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { bmr, cycleState, dailyFuel, phaseForDay, validateAboutYou, type FuelInputs } from './nutrition'
-import { satisfiesIronPairing, suggestPlate } from './suggestions'
+import { allCombinations, satisfiesIronPairing, suggestPlate } from './suggestions'
 import type { FoodItem } from './types'
 
 function loadSeed(): FoodItem[] {
@@ -127,21 +127,37 @@ describe('suggestions (criteria 6, 10c)', () => {
   const foods = loadSeed()
   const fuel = dailyFuel(base, { training: false, luteal: false })
   it('loads 71 seed rows', () => expect(foods).toHaveLength(71))
-  it('every slot has 2–3 options, any phase, many seeds', () => {
+  it('every row offers 2–3 choices, any phase, many seeds', () => {
     for (const phase of [null, 'menstrual', 'follicular', 'ovulatory', 'luteal'] as const) {
       for (let seed = 1; seed <= 40; seed++) {
         for (const s of suggestPlate(foods, fuel, phase, seed)) {
-          expect(s.options.length).toBeGreaterThanOrEqual(2)
-          expect(s.options.length).toBeLessThanOrEqual(3)
+          expect(s.rows.length).toBeGreaterThan(0)
+          for (const row of s.rows) {
+            expect(row.items.length).toBeGreaterThanOrEqual(2)
+            expect(row.items.length).toBeLessThanOrEqual(3)
+            expect(new Set(row.items.map((i) => i.id)).size).toBe(row.items.length)
+          }
         }
       }
     }
   })
-  it('menstrual: every option with an iron-rich item has a vitamin C-rich item', () => {
+  it('menstrual: whatever she picks, an iron-rich item comes with a vitamin C-rich item', () => {
     for (let seed = 1; seed <= 200; seed++) {
       for (const s of suggestPlate(foods, fuel, 'menstrual', seed)) {
-        for (const o of s.options) expect(satisfiesIronPairing(o.items)).toBe(true)
+        for (const combo of allCombinations(s)) expect(satisfiesIronPairing(combo)).toBe(true)
       }
+    }
+  })
+  it('menstrual plate leans iron-rich', () => {
+    const s = suggestPlate(foods, fuel, 'menstrual', 3)
+    const dinnerProteins = s.find((x) => x.slot === 'dinner')!.rows[0].items
+    expect(dinnerProteins.some((i) => i.iron_rich)).toBe(true)
+  })
+  it('breakfast offers substantial single foods', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const b = suggestPlate(foods, fuel, null, seed)[0]
+      expect(b.rows[0].pick).toBe(1)
+      for (const i of b.rows[0].items) expect(i.kcal_per_portion).toBeGreaterThanOrEqual(100)
     }
   })
 })
