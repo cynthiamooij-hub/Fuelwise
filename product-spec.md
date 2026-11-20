@@ -1,6 +1,6 @@
 # Product Spec — Fuelwise
 
-**Version:** 1.1
+**Version:** 1.2
 **Date:** 20 November 2026
 **Author:** Cynthia Mooij
 **Status:** Confirmed
@@ -260,8 +260,8 @@ Neither checkbox may be pre-ticked, and the form must not submit without the fir
 > *Draft for review:* "Your information is stored securely and used only to generate your personal nutrition guidance. It is never shared with anyone or used for any other purpose. Cycle information is health data — you choose whether to share it, the app works fully without it, and you can delete it at any time. You can request deletion of all your data at any time by contacting [CONTACT EMAIL]."
 
 **Deletion mechanism:** Two routes, both required in this build:
-1. Self-service — a "Delete my account and all my data" action in Settings, with a confirmation step, which removes the user's row from `profiles`, her custom `food_items`, and her Supabase Auth record.
-2. On request — the user emails the contact address in the data statement; the builder processes the deletion manually. **Contact address: PENDING — builder to supply.**
+1. Self-service — a "Delete all my data" action in Settings, with a confirmation step, which removes the user's row from `profiles` and every custom `food_items` row she owns, then signs her out. Her Supabase Auth record (her email address) is **not** removed by this action. Deleting an auth user requires the Supabase admin API and a service role key, and this build deliberately includes neither — see Section 12. After the action she sees a confirmation saying her data is gone and that the email address on her sign-in can be removed on request.
+2. On request — the user emails the contact address in the data statement; the builder deletes her Supabase Auth record in the Supabase dashboard. **Contact address: PENDING — builder to supply.**
 
 > **Build gate:** Claude Code builds the consent checkboxes, the data statement component, and the deletion flow using the placeholder text above. The build is not blocked, but the tool must not be given to a real tester until the final statement wording and the deletion contact address are in place. This is recorded in Section 15 as a blocking open question for launch.
 
@@ -310,9 +310,9 @@ Neither checkbox may be pre-ticked, and the form must not submit without the fir
 ### Settings
 
 - **Purpose:** Let her change anything she entered, and leave cleanly.
-- **What is visible:** Editable profile fields, the cycle layer toggle with its cycle fields, a link to the data statement, and the delete-account action.
-- **User actions:** Edit and save profile, switch the cycle layer on or off, delete account and all data (with a confirmation step), sign out.
-- **What happens next:** Switching the cycle layer off deletes `cycle_length_days`, `period_length_days` and `last_period_start` from her row and removes the cycle strip from the dashboard. Deleting the account removes her profile row, her custom food items, and her auth record, then returns her to Login.
+- **What is visible:** Editable profile fields, the cycle layer toggle with its cycle fields, a link to the data statement, and the delete-my-data action.
+- **User actions:** Edit and save profile, switch the cycle layer on or off, delete all her data (with a confirmation step), sign out.
+- **What happens next:** Switching the cycle layer off deletes `cycle_length_days`, `period_length_days` and `last_period_start` from her row and removes the cycle strip from the dashboard. Deleting her data removes her profile row and all her custom food items, signs her out, and returns her to Login with a confirmation that her sign-in email can be removed on request.
 
 ---
 
@@ -446,7 +446,7 @@ These are not stylistic suggestions. Claude Code must apply them to every piece 
 
 | Service | What it does in this tool | Key required | Where key is stored |
 |---------|--------------------------|-------------|-------------------|
-| Supabase | Database, Auth (magic link), RLS | Anon key (public, browser-safe) + Service role key (server-side only) | Netlify environment variables |
+| Supabase | Database, Auth (magic link), RLS | Anon key only (public, browser-safe, protected by RLS) | Netlify environment variables |
 
 No AI provider. No Resend account. No third-party services beyond Supabase.
 
@@ -457,9 +457,8 @@ No AI provider. No Resend account. No third-party services beyond Supabase.
 | Credential | Status | Where to get it |
 |-----------|--------|----------------|
 | Supabase anon key | Created by Claude Code with the project | Supabase dashboard → Project Settings → API |
-| Supabase service role key | Created by Claude Code with the project | Supabase dashboard → Project Settings → API |
 
-No pre-build credential tasks. Claude Code creates the Supabase project and both keys during the build session.
+No pre-build credential tasks. Claude Code creates the Supabase project and its keys during the build session. The service role key is **not used by this build** — it must not appear in any file, function or environment variable.
 
 ---
 
@@ -475,6 +474,7 @@ No pre-build credential tasks. Claude Code creates the Supabase project and both
 | Streaks, scores, badges, gamification | Excluded by the copy rules in Section 10. Not a future feature — an explicit non-goal. |
 | Multi-user rollout beyond invited testers | Architecture supports it; the test does not need it. |
 | Recipe content and meal plans | Out of scope. The tool suggests foods and portions, not recipes. |
+| Server-side account deletion | Removing a user's Supabase Auth record needs the admin API and a service role key, which bypasses all RLS. Disproportionate for an invite-only test. The user deletes her own data in-app; the builder removes the auth record on request. |
 | Hormonal contraception, PCOS and perimenopause handling | The cycle model assumes a natural cycle. Users on hormonal contraception or with irregular cycles should switch the cycle layer off and use the tool as a pure nutrition app, which it fully supports. Tailored handling is a future build. |
 
 ---
@@ -498,7 +498,7 @@ No pre-build credential tasks. Claude Code creates the Supabase project and both
 | 11 | RLS isolation | Create a second test user. Confirm by direct query that neither user can read the other's profile row or custom food items. | [ ] |
 | 12 | Consent gates the form | Onboarding cannot be submitted with the profile consent box unticked. The cycle consent box appears only when the cycle toggle is on, and gates saving cycle fields. | [ ] |
 | 13 | Cycle data is genuinely deleted | Switching the cycle layer off in Settings removes the three cycle fields from the database row — verify by query, not by UI. | [ ] |
-| 14 | Account deletion is complete | The delete action removes the profile row, the user's custom food items, and the auth record. Verify all three by query. | [ ] |
+| 14 | Data deletion is complete | The delete action removes the profile row and every custom food item owned by that user, and signs her out. Verify both by query. The auth record remaining is by design, not a defect. | [ ] |
 | 15 | Age gate | An age under 18 blocks onboarding and creates no profile row. | [ ] |
 | 16 | Copy rules audit | Read every string in the app against the ten rules in Section 10. Zero violations. Specifically grep for: good, bad, cheat, guilt, clean, earned, burn, remaining, left, streak, goal weight, target weight. | [ ] |
 | 17 | No forbidden UI elements | Confirm absence of: progress bar toward a calorie target, remaining-calories figure, streak counter, weight trend chart, goal weight field, red styling in the eating flow. | [ ] |
@@ -556,6 +556,7 @@ No pre-build credential tasks. Claude Code creates the Supabase project and both
 | Version | Date | What changed in the tool |
 |---------|------|--------------------------|
 | v1.0 | 20 November 2026 | Initial build |
+| v1.2 | 20 November 2026 | Self-service deletion scoped to the user's own data (profile row and custom food items); the Supabase Auth record is now removed by the builder on request instead. A signed-in user cannot delete her own auth record from the browser, so as written the build could not have met its own acceptance criterion without a service role key. Service role key removed from Section 11 and server-side account deletion added to Out of Scope. Criterion 14 reworded. |
 | v1.1 | 20 November 2026 | Added `vitamin_c_rich` to the `food_items` schema — Section 9 called for pairing iron with vitamin C but the schema had no field to support it. Seed data changed from Claude Code generating ~60 items to importing the vetted 71-row `food-bank-seed.csv`, with an explicit instruction not to invent nutritional values. Acceptance criteria 10b and 10c added. |
 
 ---
