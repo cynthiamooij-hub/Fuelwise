@@ -56,4 +56,4 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Supabase Free plan pauses after about a week without traffic; restore it manually in the dashboard if the tool goes quiet.
 
 ## Notes for next session
-None.
+- First tester: Nadja Carrillo, Nadjacarrillo@gmail.com. Builder to invite her in Supabase → Authentication → Users → Invite user. Blocked until (a) Site URL and Redirect URLs are set, or her magic link will point at localhost:3000, and (b) the final data statement wording and deletion contact are in place — she is a real user entering Article 9 health data. Once she is in, she covers the "live test with a real invited user" item above.
