@@ -46,6 +46,8 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Motivational messages avoid every word on the criterion-16 grep list, including "good".
 
 ## Known issues
+- One invited tester was given access in session 1 while the data statement and deletion contact are still placeholders — builder's explicit override of the hard rule ("it's just a test"). Finalise both before inviting anyone else.
+- Netlify shows a "Powered by Netlify" badge over the bottom-right of the nav (covers Recipes/Settings on phones). Builder to look for a setting in Netlify; fallback is an app-side nav change.
 - Recipes tab links to external sites; Fuelwise's copy rules can't be enforced there (some recipes may use moralised wording).
 - No DB field for the cycle-consent timestamp; cycle consent is enforced in the UI only. Consider cycle_consent_timestamp for an Article 9 audit trail (spec change).
 - Builder's Supabase project "eql-exam-trainer" was paused in session 1 to free a Free-plan slot; restore from the dashboard when needed.
