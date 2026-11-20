@@ -4,21 +4,20 @@
 > anything. Update it at every save point. Replace content — do not append.
 > History lives in git.
 
-**Session:** 0 — build not started
-**Last updated:** 20 November 2026 — by Project Governor, pre-build
+**Session:** 1
+**Last updated:** 20 November 2026 — session 1
 **Live URL:** none yet [Rule: fill in after the first successful deploy]
 
 ## Current state
-Nothing built. Repo contains CLAUDE.md, PROGRESS.md, product-spec.md, food-bank-seed.csv.
+Nothing built yet. Repo contains CLAUDE.md, PROGRESS.md, docs/product-spec.md, docs/food-bank-seed.csv.
 [Rule: this section describes what exists and works right now — never what is
 planned. Completed checklist items get absorbed here in compressed form.]
 
 ## Last session
-None — the first build session has not happened yet.
+Session 1: First Session Setup — moved product-spec.md and food-bank-seed.csv into docs/.
 [Rule: 3–5 lines maximum. Replace each session — what was built, changed, or fixed.]
 
 ## Remaining work
-- [ ] First Session Setup: create docs/, move product-spec.md and food-bank-seed.csv into it, commit (see CLAUDE.md Session Protocol)
 - [ ] Create Supabase project "fuelwise" via MCP — confirm the name with the builder first, region EU (Frankfurt)
 - [ ] Build all tables and RLS policies and Auth configuration (magic link, public signup disabled), then write docs/supabase-setup.md
 - [ ] Import docs/food-bank-seed.csv into food_items — 71 rows, no generated values
@@ -36,7 +35,7 @@ None — the first build session has not happened yet.
 list only shrinks.]
 
 ## Build decisions
-None yet.
+- Save points push directly to main (builder confirmed session 1), so Netlify auto-deploys from main.
 [Rule: one line per decision made during the build that is not in the spec — prompt
 structures, field formats, naming choices, library picks. Future sessions depend on
 these to stay consistent.]
