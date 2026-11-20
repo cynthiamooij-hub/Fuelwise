@@ -6,49 +6,50 @@
 
 **Session:** 1
 **Last updated:** 20 November 2026 — session 1
-**Live URL:** none yet [Rule: fill in after the first successful deploy]
+**Live URL:** none yet
 
 ## Current state
-Supabase project "fuelwise" (fkbhdkkkwkqhglgqghsf, Frankfurt, Free) is live: profiles, food_items, motivational_messages with RLS on all three and anon fully revoked. food_items holds the 71 CSV seed rows (verified against the file); motivational_messages holds 30 messages. docs/supabase-setup.md written. No frontend yet.
-[Rule: this section describes what exists and works right now — never what is
-planned. Completed checklist items get absorbed here in compressed form.]
+- Supabase "fuelwise" (fkbhdkkkwkqhglgqghsf, Frankfurt, Free): profiles, food_items (71 CSV seed rows, verified), motivational_messages (30). RLS on all tables, anon revoked. See docs/supabase-setup.md.
+- Frontend (React + Vite + Tailwind v4 + shadcn-style Radix components, Lucide icons, self-hosted Fraunces + Inter) at repo root: Login (magic link, shouldCreateUser false), 4-step Onboarding with age gate + two consent boxes, Dashboard (greeting/message, cycle strip, fuel, training toggle, plate, why-this), Food bank (browse/search/add/edit/delete own), Settings (profile, cycle on/off with field deletion, data statement, delete my data, sign out), Privacy and Data-deleted pages.
+- Business logic in src/lib/nutrition.ts and src/lib/suggestions.ts; `npm test` runs 31 vitest checks covering criteria 3, 4, 5, 7, 8, 9, 10c, 15 and 2–3 options per slot.
+- Verified session 1: criterion 11 (RLS isolation) by SQL impersonation; criteria 2, 6, 9, 10, 12, 13, 14, 15, 17, 18 by a Playwright walkthrough with Supabase mocked (the container cannot reach supabase.co); criterion 16 grep clean.
 
 ## Last session
-Session 1: moved spec + CSV into docs/. Paused the eql-exam-trainer project (builder's choice) to free a Free-plan slot, created Supabase "fuelwise", built schema + RLS, imported seed, seeded messages, wrote docs/supabase-setup.md.
-[Rule: 3–5 lines maximum. Replace each session — what was built, changed, or fixed.]
+Session 1: moved docs, created Supabase project + schema + RLS + seed, built the whole frontend, tested logic and UI (mocked backend), fixed 200%-zoom overflow and lunch-option variety.
 
 ## Remaining work
-- [ ] Builder: in Supabase dashboard turn off "Allow new users to sign up", set Site URL and redirect URLs (MCP cannot change Auth settings)
-- [ ] Build Login — email field, magic link request, no password and no registration route
-- [ ] Build Onboarding — four steps: about you, your days, your goal, cycle guidance with its own toggle and consent
-- [ ] Build Dashboard — greeting and message, cycle strip when enabled, calories and macros, training toggle, meal options, why-this explainer
-- [ ] Build Food bank — browse by group, search, add and edit her own items, seed items read-only
-- [ ] Build Settings — edit profile, cycle layer toggle with real field deletion, data statement link, delete my data, sign out
-- [ ] Add the two GDPR consent checkboxes and the data statement to onboarding
-- [ ] Local test pass — full walkthrough of every view, cycle layer both on and off
-- [ ] Acceptance criteria pass — verify every criterion in spec Section "Acceptance Criteria" before deploy
-- [ ] Deploy to Netlify via MCP, set environment variables
-[Rule: completed items leave this list and are absorbed into Current state. This
-list only shrinks.]
+- [ ] Builder: Supabase dashboard → Authentication → turn off "Allow new users to sign up"; URL Configuration → Site URL = Netlify URL, add http://localhost:5173 to Redirect URLs
+- [ ] Deploy to Netlify via MCP, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+- [ ] Live test with a real invited user: criterion 1 (magic link, non-invited email gets nothing), 2, 13 and 14 verified by query against the real DB, 19 (mobile + desktop)
+- [ ] Delete the two test auth users fw-test-a@example.test / fw-test-b@example.test (needs builder at desktop to approve the delete prompt)
+- [ ] Builder: final data statement wording + deletion contact email (blocks giving the tool to a real user)
 
 ## Build decisions
-- DB check constraint cycle_fields_cleared_when_off forces cycle fields null when cycle_enabled is false.
-- Motivational messages avoid every word on the criterion-16 grep list, including "good".
 - Save points push directly to main (builder confirmed session 1), so Netlify auto-deploys from main.
-[Rule: one line per decision made during the build that is not in the spec — prompt
-structures, field formats, naming choices, library picks. Future sessions depend on
-these to stay consistent.]
+- App lives at the repo root (not a subfolder) so `npm install / dev / build` match CLAUDE.md.
+- DB check constraint cycle_fields_cleared_when_off forces cycle fields null when cycle_enabled is false.
+- Ovulatory = the 3 days ending at day (L−14); luteal = final 14 days (L−13..L), so the two never overlap. Menstrual wins if a long period overlaps.
+- Calorie order: training +250 is added before the luteal ×1.05, per spec step order.
+- Meal option = a combination: breakfast protein + carb (+ fat/fruit), lunch/dinner protein + carb + vegetable, snacks 1–2 items. Slot shares 25/30/30/15%.
+- Fruit (seeded as meal_slot snack) is also allowed at breakfast.
+- Menstrual phase: any option containing an iron-rich item gets a vitamin C-rich partner added if it lacks one.
+- Suggestions are seeded by date so they're stable through the day; "New ideas" bumps the seed.
+- Message choice: training_day → phase → returning_user/general, chosen by date.
+- #D85A30 fails AA for small text: buttons use #993C1D with white (6.96:1); muted text #7A4A3A; #D85A30 only decorative/large.
+- Validation hints use deep text + info icon — no red. Red (#B42318) only on delete-my-data buttons.
+- Login shows the same "check your inbox" message whether or not the email is invited.
+- Tagline set to "Food that works for you" (builder may change in src/lib/copy.ts).
+- Fonts self-hosted via @fontsource (no Google Fonts request — GDPR).
+- Motivational messages avoid every word on the criterion-16 grep list, including "good".
 
 ## Known issues
-- The schema has no field for the cycle-consent timestamp; cycle consent is enforced in the UI only. Consider adding cycle_consent_timestamp for an Article 9 audit trail (needs a spec change).
-- Builder's other Supabase project "eql-exam-trainer" was paused in session 1 to free a Free-plan slot; restore it from the dashboard when needed.
+- No DB field for the cycle-consent timestamp; cycle consent is enforced in the UI only. Consider cycle_consent_timestamp for an Article 9 audit trail (spec change).
+- Builder's Supabase project "eql-exam-trainer" was paused in session 1 to free a Free-plan slot; restore from the dashboard when needed.
+- This cloud container cannot reach supabase.co (builder declined a network change), so live end-to-end tests happen on the deployed site.
+- JS bundle is ~615 kB (warning only); code-splitting optional later.
 - GDPR data statement wording is a placeholder and the deletion contact address is missing. Both block giving the tool to a real user; neither blocks the build.
-- Food bank macro values are standard composition figures, not verified against NEVO. Spot-check the protein sources before real use — they drive the macro split.
-- Tagline not chosen: "Eat well, feel better" / "Food that works for you" / "Fuel yourself well" / none.
+- Food bank macro values are standard composition figures, not verified against NEVO. Spot-check the protein sources before real use.
 - Supabase Free plan pauses after about a week without traffic; restore it manually in the dashboard if the tool goes quiet.
-[Rule: bugs, edge cases, and deferred fixes. One line each. Remove when resolved.]
 
 ## Notes for next session
 None.
-[Rule: the builder writes here between sessions. Claude Code reads these aloud at
-session start, acts on them, then clears this section.]

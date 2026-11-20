@@ -146,11 +146,22 @@ export function suggestPlate(
     // Take up to three, each led by a different first item so the options feel distinct.
     const options: MealOption[] = []
     const leads = new Set<string>()
+    // Prefer options that share no items with ones already chosen, then relax.
+    for (const maxShared of [0, 1]) {
+      for (const { opt } of scored.slice(0, 60)) {
+        if (options.length === 3) break
+        if (options.includes(opt) || leads.has(opt.items[0].id)) continue
+        const shared = opt.items.filter((i) => options.some((o) => o.items.includes(i))).length
+        if (shared > maxShared) continue
+        leads.add(opt.items[0].id)
+        options.push(opt)
+      }
+    }
     for (const { opt } of scored) {
+      if (options.length === 3) break
       if (leads.has(opt.items[0].id)) continue
       leads.add(opt.items[0].id)
       options.push(opt)
-      if (options.length === 3) break
     }
     for (const { opt } of scored) {
       if (options.length >= 2) break

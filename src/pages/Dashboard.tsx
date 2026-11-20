@@ -115,11 +115,11 @@ export function Dashboard() {
 
       <Card className="mt-6" aria-labelledby="fuel-heading">
         <h2 id="fuel-heading" className="text-xl">Today’s fuel</h2>
-        <p className="mt-3">
+        <p className="mt-3 flex flex-wrap items-baseline gap-x-2">
           <span className="num text-5xl font-semibold text-deep">{fuel.kcal.toLocaleString('en-GB')}</span>
-          <span className="num ml-2 text-lg text-muted">kcal, roughly</span>
+          <span className="num text-lg text-muted">kcal, roughly</span>
         </p>
-        <dl className="mt-4 grid grid-cols-3 gap-3">
+        <dl className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-3">
           {[
             ['Protein', fuel.protein_g],
             ['Carbs', fuel.carbs_g],
@@ -133,7 +133,7 @@ export function Dashboard() {
         </dl>
         <p className="mt-3 text-sm text-muted">{ESTIMATE_NOTE}</p>
 
-        <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-line pt-4">
           <Label htmlFor="training" className="flex items-center gap-2 text-base">
             <Dumbbell className="size-5 text-olive" aria-hidden /> Training today?
           </Label>
@@ -158,7 +158,7 @@ export function Dashboard() {
       </Card>
 
       <section className="mt-8" aria-labelledby="plate-heading">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="plate-heading" className="text-2xl">Today’s plate</h2>
           <Button variant="outline" size="sm" onClick={() => setSeed((s) => s + 1)}>
             <RefreshCw aria-hidden /> New ideas
