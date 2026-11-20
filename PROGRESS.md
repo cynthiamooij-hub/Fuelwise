@@ -6,7 +6,7 @@
 
 **Session:** 1
 **Last updated:** 20 November 2026 — session 1
-**Live URL:** none yet
+**Live URL:** https://fuelwise-prjn.netlify.app (Netlify project created; first deploy pending repo link)
 
 ## Current state
 - Supabase "fuelwise" (fkbhdkkkwkqhglgqghsf, Frankfurt, Free): profiles, food_items (71 CSV seed rows, verified), motivational_messages (30). RLS on all tables, anon revoked. See docs/supabase-setup.md.
@@ -19,7 +19,7 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 
 ## Remaining work
 - [ ] Builder: Supabase dashboard → Authentication → turn off "Allow new users to sign up"; URL Configuration → Site URL = Netlify URL, add http://localhost:5173 to Redirect URLs
-- [ ] Deploy to Netlify via MCP, set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+- [ ] Builder: link GitHub repo cynthiamooij-hub/Fuelwise to Netlify project fuelwise-prjn (Project configuration → Build & deploy → Link repository, branch main). Env vars already set; first push deploys.
 - [ ] Live test with a real invited user: criterion 1 (magic link, non-invited email gets nothing), 2, 13 and 14 verified by query against the real DB, 19 (mobile + desktop)
 - [ ] Delete the two test auth users fw-test-a@example.test / fw-test-b@example.test (needs builder at desktop to approve the delete prompt)
 - [ ] Builder: final data statement wording + deletion contact email (blocks giving the tool to a real user)
@@ -39,6 +39,7 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Validation hints use deep text + info icon — no red. Red (#B42318) only on delete-my-data buttons.
 - Login shows the same "check your inbox" message whether or not the email is invited.
 - Tagline set to "Food that works for you" (builder may change in src/lib/copy.ts).
+- Netlify project is "fuelwise-prjn" (id 21641355-ce79-4645-961a-b164fc7e8cc5); "fuelwise" was taken. Env vars VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY and SECRETS_SCAN_OMIT_KEYS (for those two public values) set via MCP.
 - Fonts self-hosted via @fontsource (no Google Fonts request — GDPR).
 - Motivational messages avoid every word on the criterion-16 grep list, including "good".
 
