@@ -160,4 +160,13 @@ describe('suggestions (criteria 6, 10c)', () => {
       for (const i of b.rows[0].items) expect(i.kcal_per_portion).toBeGreaterThanOrEqual(100)
     }
   })
+  it('refreshing one meal leaves the other meals unchanged', () => {
+    const ids = (p: ReturnType<typeof suggestPlate>) => p.map((x) => x.rows.map((r) => r.items.map((i) => i.id).join(',')).join('|'))
+    const before = ids(suggestPlate(foods, fuel, null, { breakfast: 5, lunch: 5, dinner: 5, snack: 5 }))
+    const after = ids(suggestPlate(foods, fuel, null, { breakfast: 5, lunch: 6, dinner: 5, snack: 5 }))
+    expect(after[0]).toBe(before[0])
+    expect(after[2]).toBe(before[2])
+    expect(after[3]).toBe(before[3])
+    expect(after[1]).not.toBe(before[1])
+  })
 })

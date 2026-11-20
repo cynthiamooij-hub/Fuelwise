@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { CalendarClock, ChevronDown, Dumbbell, Lightbulb, RefreshCw } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { cycleState, dailyFuel, daysBetween, localISODate, type Phase } from '@/lib/nutrition'
-import { SLOT_LABEL, suggestPlate, type PlateRow } from '@/lib/suggestions'
-import { APPROXIMATE_LINE, ESTIMATE_NOTE, GOAL_WHY, PHASE_WHY, TRAINING_WHY } from '@/lib/copy'
+import { SLOT_LABEL, suggestPlate, type PlateRow, type PlateSlot, type SlotSeeds } from '@/lib/suggestions'
+import { APPROXIMATE_LINE, ESTIMATE_NOTE, PLATE_INTRO, GOAL_WHY, PHASE_WHY, TRAINING_WHY } from '@/lib/copy'
 import type { ContextTag, FoodItem, MotivationalMessage } from '@/lib/types'
 import { AppShell } from '@/components/AppShell'
 import { CycleStrip } from '@/components/CycleStrip'
@@ -59,7 +59,11 @@ export function Dashboard() {
   const { profile, foods, messages } = useApp()
   const today = localISODate()
   const [training, setTraining] = useState(false) // never stored, so it is off on every load
-  const [seed, setSeed] = useState(() => daySeed(today))
+  const [seeds, setSeeds] = useState<SlotSeeds>(() => {
+    const d = daySeed(today)
+    return { breakfast: d, lunch: d, dinner: d, snack: d }
+  })
+  const refresh = (slot: PlateSlot) => setSeeds((s) => ({ ...s, [slot]: s[slot] + 1 }))
   const [whyOpen, setWhyOpen] = useState(false)
 
   const cycle = profile ? cycleState(profile, today) : { kind: 'off' as const }
@@ -69,7 +73,7 @@ export function Dashboard() {
     () => (profile ? dailyFuel(profile, { training, luteal: phase === 'luteal' }) : null),
     [profile, training, phase],
   )
-  const plate = useMemo(() => (fuel && foods.length ? suggestPlate(foods, fuel, phase, seed) : []), [foods, fuel, phase, seed])
+  const plate = useMemo(() => (fuel && foods.length ? suggestPlate(foods, fuel, phase, seeds) : []), [foods, fuel, phase, seeds])
 
   if (!profile || !fuel) return null
 
@@ -156,18 +160,20 @@ export function Dashboard() {
       </Card>
 
       <section className="mt-8" aria-labelledby="plate-heading">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="plate-heading" className="text-2xl">Today’s plate</h2>
-          <Button variant="outline" size="sm" onClick={() => setSeed((s) => s + 1)}>
-            <RefreshCw aria-hidden /> New ideas
-          </Button>
+        <h2 id="plate-heading" className="text-2xl">Today’s plate</h2>
+        <div className="mt-2 space-y-2 rounded-2xl bg-fill p-4 text-deep">
+          {PLATE_INTRO.map((line) => <p key={line}>{line}</p>)}
         </div>
-        <p className="mt-1 text-muted">Ideas for each meal — choose whatever appeals today.</p>
 
         <div className="mt-4 space-y-6">
           {plate.map((s) => (
             <div key={s.slot}>
-              <h3 className="text-lg">{SLOT_LABEL[s.slot]}</h3>
+              <div className="flex flex-wrap items-center justify-between gap-x-3">
+                <h3 className="text-lg">{SLOT_LABEL[s.slot]}</h3>
+                <Button variant="ghost" size="sm" className="px-3 text-terracotta-dark" onClick={() => refresh(s.slot)} aria-label={`New ${SLOT_LABEL[s.slot].toLowerCase()} ideas`}>
+                  <RefreshCw aria-hidden /> New ideas
+                </Button>
+              </div>
               <div className="mt-2 space-y-3">
                 {s.rows.map((row) => (
                   <Row key={row.prompt} row={row} />
@@ -196,7 +202,7 @@ export function Dashboard() {
             <p>{GOAL_WHY[profile.goal]}</p>
             {phase && <p>{PHASE_WHY[phase]}</p>}
             {training && <p>{TRAINING_WHY}</p>}
-            <p>Lunch and dinner are built from a protein, a carb and some veg, so you get staying power, energy and fibre together. Tap “New ideas” any time for different choices.</p>
+            <p>Lunch and dinner are built from a protein, a carb and some veg, so you get staying power, energy and fibre together. Tap “New ideas” on any meal to swap just that meal’s choices.</p>
           </div>
         )}
       </section>

@@ -58,6 +58,12 @@ export const TRAINING_WHY =
 export const ESTIMATE_NOTE =
   'An estimate to guide you, based on the Mifflin-St Jeor equation. Your body and appetite on the day are just as useful a guide.'
 
+export const PLATE_INTRO = [
+  'For each meal, choose one food from each row — snacks, pick two. Portions are a guide; go by your appetite.',
+  'Make it delicious: herbs, spices, garlic, lemon, chilli or a splash of soy sauce add loads of flavour.',
+  'Veggies are the exception to portions — pile on as many as you like.',
+]
+
 export const APPROXIMATE_LINE = 'A starting point rather than a precise match — mix and swap as you like.'
 
 export const DATA_STATEMENT =

@@ -70,7 +70,10 @@ function choose(pool: FoodItem[], n: number, r: () => number, weight: (f: FoodIt
 
 const group = (foods: FoodItem[], g: FoodGroup[]) => foods.filter((f) => g.includes(f.food_group))
 
-export function suggestPlate(foods: FoodItem[], fuel: DailyFuel, phase: Phase | null, seed: number): SlotSuggestion[] {
+export type SlotSeeds = Record<PlateSlot, number>
+
+/** `seed` may be one number for the whole plate or one per slot, so each meal can be refreshed on its own. */
+export function suggestPlate(foods: FoodItem[], fuel: DailyFuel, phase: Phase | null, seed: number | SlotSeeds): SlotSuggestion[] {
   const emphasis = emphasisFor(phase)
   const vitC = foods.filter((f) => f.vitamin_c_rich)
 
@@ -85,7 +88,7 @@ export function suggestPlate(foods: FoodItem[], fuel: DailyFuel, phase: Phase | 
   }
 
   const make = (slot: PlateSlot, idx: number): SlotSuggestion => {
-    const r = rng(seed * 31 + idx * 7919 + 1)
+    const r = rng((typeof seed === 'number' ? seed : seed[slot]) * 31 + idx * 7919 + 1)
     const rows: PlateRow[] = []
 
     if (slot === 'breakfast') {

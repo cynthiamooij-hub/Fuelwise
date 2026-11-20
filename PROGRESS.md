@@ -11,7 +11,7 @@
 ## Current state
 - Supabase "fuelwise" (fkbhdkkkwkqhglgqghsf, Frankfurt, Free): profiles, food_items (71 CSV seed rows, verified), motivational_messages (30). RLS on all tables, anon revoked. See docs/supabase-setup.md.
 - Frontend (React + Vite + Tailwind v4 + shadcn-style Radix components, Lucide icons, self-hosted Fraunces + Inter) at repo root: Login (magic link, shouldCreateUser false), 4-step Onboarding with age gate + two consent boxes, Dashboard (greeting/message, cycle strip, fuel, training toggle, plate, why-this), Food bank (browse/search/add/edit/delete own), Settings (profile, cycle on/off with field deletion, data statement, delete my data, sign out), Privacy and Data-deleted pages.
-- Business logic in src/lib/nutrition.ts and src/lib/suggestions.ts; `npm test` runs 33 vitest checks covering criteria 3, 4, 5, 7, 8, 9, 10c, 15 and 2–3 options per slot.
+- Business logic in src/lib/nutrition.ts and src/lib/suggestions.ts; `npm test` runs 34 vitest checks covering criteria 3, 4, 5, 7, 8, 9, 10c, 15 and 2–3 options per slot.
 - Verified session 1: criterion 11 (RLS isolation) by SQL impersonation; criteria 2, 6, 9, 10, 12, 13, 14, 15, 17, 18 by a Playwright walkthrough with Supabase mocked (the container cannot reach supabase.co); criterion 16 grep clean.
 
 ## Last session
@@ -32,7 +32,8 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Today's plate is "pick from these" (builder's call, session 1): breakfast = pick one of 3 substantial foods (≥100 kcal, protein/carb); lunch & dinner = build your plate, 3 rows (protein / carb / veg) of 3 choices; snacks = pick two of 3 from snack/fruit/nut foods. Choices are weighted toward phase emphasis and protein density; no per-meal kcal matching.
 - Lunch carbs also draw from dinner-slot carbs (seed has only 2 lunch carbs).
 - Menstrual phase: lunch/dinner veg row is vitamin C-rich only; breakfast gets a "with some vitamin C" fruit row when an iron-rich choice is shown; snacks become "one iron-rich + one vitamin C fruit". A test checks every combination she could pick (criterion 10c).
-- Suggestions are seeded by date so they're stable through the day; "New ideas" bumps the seed.
+- Suggestions are seeded by date so they're stable through the day; each meal has its own "New ideas" button and seed, so refreshing one meal leaves the others alone.
+- Today's plate opens with a 3-line intro (how to pick, season it well, veg is unlimited) — copy in src/lib/copy.ts PLATE_INTRO.
 - Message choice: training_day → phase → returning_user/general, chosen by date.
 - #D85A30 fails AA for small text: buttons use #993C1D with white (6.96:1); muted text #7A4A3A; #D85A30 only decorative/large.
 - Validation hints use deep text + info icon — no red. Red (#B42318) only on delete-my-data buttons.
