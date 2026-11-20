@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider, useApp } from '@/context/AppContext'
+import { PlateProvider } from '@/context/PlateContext'
 import { Login } from '@/pages/Login'
 import { Onboarding } from '@/pages/Onboarding'
 import { Dashboard } from '@/pages/Dashboard'
@@ -8,6 +9,7 @@ import { FoodBank } from '@/pages/FoodBank'
 import { Settings } from '@/pages/Settings'
 import { Privacy } from '@/pages/Privacy'
 import { DataDeleted } from '@/pages/DataDeleted'
+import { Recipes } from '@/pages/Recipes'
 
 function Loading() {
   return (
@@ -38,6 +40,7 @@ function LoginRoute() {
 export default function App() {
   return (
     <AppProvider>
+      <PlateProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
@@ -45,11 +48,13 @@ export default function App() {
           <Route path="/onboarding" element={<Guard needsProfile={false}><Onboarding /></Guard>} />
           <Route path="/" element={<Guard><Dashboard /></Guard>} />
           <Route path="/food" element={<Guard><FoodBank /></Guard>} />
+          <Route path="/recipes" element={<Guard><Recipes /></Guard>} />
           <Route path="/settings" element={<Guard><Settings /></Guard>} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </PlateProvider>
     </AppProvider>
   )
 }

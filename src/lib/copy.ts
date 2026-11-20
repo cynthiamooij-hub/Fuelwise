@@ -64,6 +64,9 @@ export const PLATE_INTRO = [
   'Veggies are the exception to portions — pile on as many as you like.',
 ]
 
+export const RECIPES_INTRO =
+  'Short on inspiration? Here are the proteins on today’s plate — tap one to search the web for recipe ideas. Links open in a new tab, so take whatever is useful and leave the rest.'
+
 export const APPROXIMATE_LINE = 'A starting point rather than a precise match — mix and swap as you like.'
 
 export const DATA_STATEMENT =

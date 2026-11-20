@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CalendarClock, ChevronDown, Dumbbell, Lightbulb, RefreshCw } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
-import { cycleState, dailyFuel, daysBetween, localISODate, type Phase } from '@/lib/nutrition'
-import { SLOT_LABEL, suggestPlate, type PlateRow, type PlateSlot, type SlotSeeds } from '@/lib/suggestions'
+import { SLOT_LABEL, type PlateRow } from '@/lib/suggestions'
+import { usePlate } from '@/context/PlateContext'
 import { APPROXIMATE_LINE, ESTIMATE_NOTE, PLATE_INTRO, GOAL_WHY, PHASE_WHY, TRAINING_WHY } from '@/lib/copy'
 import type { ContextTag, FoodItem, MotivationalMessage } from '@/lib/types'
 import { AppShell } from '@/components/AppShell'
@@ -12,10 +12,6 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-
-function daySeed(today: string) {
-  return daysBetween('2026-01-01', today)
-}
 
 function greetingWord() {
   const h = new Date().getHours()
@@ -57,23 +53,8 @@ function findFood(foods: FoodItem[], name: string) {
 
 export function Dashboard() {
   const { profile, foods, messages } = useApp()
-  const today = localISODate()
-  const [training, setTraining] = useState(false) // never stored, so it is off on every load
-  const [seeds, setSeeds] = useState<SlotSeeds>(() => {
-    const d = daySeed(today)
-    return { breakfast: d, lunch: d, dinner: d, snack: d }
-  })
-  const refresh = (slot: PlateSlot) => setSeeds((s) => ({ ...s, [slot]: s[slot] + 1 }))
+  const { today, daySeed, cycle, phase, training, setTraining, fuel, plate, refresh } = usePlate()
   const [whyOpen, setWhyOpen] = useState(false)
-
-  const cycle = profile ? cycleState(profile, today) : { kind: 'off' as const }
-  const phase: Phase | null = cycle.kind === 'active' ? cycle.phase : null
-
-  const fuel = useMemo(
-    () => (profile ? dailyFuel(profile, { training, luteal: phase === 'luteal' }) : null),
-    [profile, training, phase],
-  )
-  const plate = useMemo(() => (fuel && foods.length ? suggestPlate(foods, fuel, phase, seeds) : []), [foods, fuel, phase, seeds])
 
   if (!profile || !fuel) return null
 
@@ -83,7 +64,7 @@ export function Dashboard() {
     ...(phase ? [phase] : []),
     ...(returning ? (['returning_user', 'general'] as const) : (['general'] as const)),
   ]
-  const message = chooseMessage(messages, messageTags, daySeed(today))
+  const message = chooseMessage(messages, messageTags, daySeed)
 
   const pre = [findFood(foods, 'Banana'), findFood(foods, 'Oats')].filter(Boolean) as FoodItem[]
   const post = [

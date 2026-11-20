@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, Settings, UtensilsCrossed } from 'lucide-react'
+import { BookOpen, Home, Settings, UtensilsCrossed } from 'lucide-react'
 import { Wordmark } from './Wordmark'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { to: '/', label: 'Today', icon: Home },
   { to: '/food', label: 'Food bank', icon: UtensilsCrossed },
+  { to: '/recipes', label: 'Recipes', icon: BookOpen },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -30,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 end={to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'flex min-h-16 flex-col items-center justify-center gap-1 text-sm',
+                    'flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-center text-xs sm:text-sm',
                     isActive ? 'font-semibold text-terracotta-dark' : 'text-muted',
                   )
                 }

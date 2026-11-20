@@ -10,7 +10,7 @@
 
 ## Current state
 - Supabase "fuelwise" (fkbhdkkkwkqhglgqghsf, Frankfurt, Free): profiles, food_items (71 CSV seed rows, verified), motivational_messages (30). RLS on all tables, anon revoked. See docs/supabase-setup.md.
-- Frontend (React + Vite + Tailwind v4 + shadcn-style Radix components, Lucide icons, self-hosted Fraunces + Inter) at repo root: Login (magic link, shouldCreateUser false), 4-step Onboarding with age gate + two consent boxes, Dashboard (greeting/message, cycle strip, fuel, training toggle, plate, why-this), Food bank (browse/search/add/edit/delete own), Settings (profile, cycle on/off with field deletion, data statement, delete my data, sign out), Privacy and Data-deleted pages.
+- Frontend (React + Vite + Tailwind v4 + shadcn-style Radix components, Lucide icons, self-hosted Fraunces + Inter) at repo root: Login (magic link, shouldCreateUser false), 4-step Onboarding with age gate + two consent boxes, Dashboard (greeting/message, cycle strip, fuel, training toggle, plate, why-this), Food bank (browse/search/add/edit/delete own), Settings (profile, cycle on/off with field deletion, data statement, delete my data, sign out), Privacy and Data-deleted pages, and a Recipes tab (Google search links for today's lunch/dinner proteins).
 - Business logic in src/lib/nutrition.ts and src/lib/suggestions.ts; `npm test` runs 34 vitest checks covering criteria 3, 4, 5, 7, 8, 9, 10c, 15 and 2–3 options per slot.
 - Verified session 1: criterion 11 (RLS isolation) by SQL impersonation; criteria 2, 6, 9, 10, 12, 13, 14, 15, 17, 18 by a Playwright walkthrough with Supabase mocked (the container cannot reach supabase.co); criterion 16 grep clean.
 
@@ -33,6 +33,8 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Lunch carbs also draw from dinner-slot carbs (seed has only 2 lunch carbs).
 - Menstrual phase: lunch/dinner veg row is vitamin C-rich only; breakfast gets a "with some vitamin C" fruit row when an iron-rich choice is shown; snacks become "one iron-rich + one vitamin C fruit". A test checks every combination she could pick (criterion 10c).
 - Suggestions are seeded by date so they're stable through the day; each meal has its own "New ideas" button and seed, so refreshing one meal leaves the others alone.
+- Recipes tab (builder's call, session 1): links out to Google "healthy <protein> recipe" searches for the proteins on today's lunch + dinner plate; opens in a new tab; only the food name goes into the URL. Spec v1.2 lists recipe content as out of scope — builder accepted external search links as a bonus; fold into the spec at the next revision.
+- Plate state (per-meal seeds, training toggle) lives in src/context/PlateContext.tsx, in memory only, shared by Today and Recipes.
 - Today's plate opens with a 3-line intro (how to pick, season it well, veg is unlimited) — copy in src/lib/copy.ts PLATE_INTRO.
 - Message choice: training_day → phase → returning_user/general, chosen by date.
 - #D85A30 fails AA for small text: buttons use #993C1D with white (6.96:1); muted text #7A4A3A; #D85A30 only decorative/large.
@@ -44,6 +46,7 @@ Session 1: moved docs, created Supabase project + schema + RLS + seed, built the
 - Motivational messages avoid every word on the criterion-16 grep list, including "good".
 
 ## Known issues
+- Recipes tab links to external sites; Fuelwise's copy rules can't be enforced there (some recipes may use moralised wording).
 - No DB field for the cycle-consent timestamp; cycle consent is enforced in the UI only. Consider cycle_consent_timestamp for an Article 9 audit trail (spec change).
 - Builder's Supabase project "eql-exam-trainer" was paused in session 1 to free a Free-plan slot; restore from the dashboard when needed.
 - This cloud container cannot reach supabase.co (builder declined a network change), so live end-to-end tests happen on the deployed site.
