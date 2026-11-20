@@ -85,6 +85,8 @@ Verified session 1: anon select is denied; an authenticated user updating seed r
 ## Auth configuration
 - Method: magic link (email OTP) via Supabase Auth. Client calls `signInWithOtp` with `shouldCreateUser: false`.
 - Invite-only: users are invited from Dashboard → Authentication → Users → Invite user.
+- Users as of session 1: the builder's own account (added session 1 via SQL into auth.users + auth.identities, email confirmed, no password — signs in by magic link) and two throwaway test users fw-test-a/b@example.test (to be deleted).
+- Session 1 auth log showed `422 Signups not allowed for otp` for an uninvited address — i.e. public signup is already refused for OTP.
 - **Manual dashboard steps (the MCP cannot change Auth settings):**
   - [ ] Authentication → Sign In / Providers → turn off "Allow new users to sign up"
   - [ ] Authentication → URL Configuration → Site URL = the Netlify URL; add `http://localhost:5173` to Redirect URLs for local testing
